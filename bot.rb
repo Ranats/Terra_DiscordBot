@@ -31,18 +31,26 @@ bot = Discordrb::Commands::CommandBot.new(
     prefix:'/',
 )
 
+### メモ
+# bot.send_message ( @channel, message ) => @channel にメッセージを送る
+# event.send_message (message) => event... コマンドを受け取ったならそのテキストサーバー，voice_state_updateならVoiceStateUpdateEvent，等になる
 
-bot.command :hello do |event|
-  event.send_message("Hello, #{event.user.name}")
+bot.ready do
+  bot.game = "Megaria"
+  bot.servers.each_value do |srv|
+    if srv.name == "Terraria"
+      @inform_channel = srv.channels.find{|s| s.type == 0}
+    end
+  end
 end
 
-bot.command :start do |event|
+start_proc = Proc.new do |event|
   begin
-    event.send_message("Order to: Start server")
+    bot.send_message(@inform_channel,"Order : Start server")
 
     res = client.start_instance( payload[:project], payload[:zone], payload[:resourceId] )
 
-    event.send_message("Server starting ...")
+    bot.send_message(@inform_channel,"Server starting ...")
 
     res_status = client.get_instance( payload[:project], payload[:zone], payload[:resourceId])
 
@@ -52,19 +60,19 @@ bot.command :start do |event|
       p res_status.status
     end
 
-    event.send_message("Server is running.")
+    bot.send_message(@inform_channel,"Server is running.")
 
   rescue => e
     p e
   end
 end
 
-bot.command :stop do |event|
+stop_proc = Proc.new do |event|
   begin
-    event.send_message("Order to: Stop server")
+    bot.send_message(@inform_channel,"Order : Stop server")
     res = client.stop_instance( payload[:project], payload[:zone], payload[:resourceId] )
 
-    event.send_message("Server stopping ...")
+    bot.send_message(@inform_channel, "Server stopping ...")
 
     res_status = client.get_instance( payload[:project], payload[:zone], payload[:resourceId])
 
@@ -74,11 +82,39 @@ bot.command :stop do |event|
       p res_status.status
     end
 
-    event.send_message("Server is stopped.")
+    bot.send_message(@inform_channel,"Server is stopped.")
   rescue => e
     p e
   end
+end
 
+bot.command :hello do |event|
+  event.send_message("Hello, #{event.user.name}")
+  event.send_message("/Help でコマンド一覧を表示")
+end
+
+# voice_channnelへの入退室を検知して発火
+bot.voice_state_update do |event|
+  user = event.user.name
+
+  if event.channel.nil?
+    p "exit #{user} from #{event.old_channel.name}"
+    bot.send_message(@inform_channel, "誰もおらんくなったのでサーバーを止めるマン")
+    stop_proc.call(event)
+  else
+    p "join #{user} to #{event.channel.name}"
+    bot.send_message(@inform_channel,"#{user} is joined #{event.channel.name}")
+
+    start_proc.call(event)
+  end
+end
+
+bot.command :start do |event|
+  start_proc.call(event)
+end
+
+bot.command :stop do |event|
+  stop_proc.call(event)
 end
 
 bot.command :status do |event|
