@@ -1,5 +1,5 @@
 #windows用
-#::RBNACL_LIBSODIUM_GEM_LIB_PATH = "c:/msys64/mingw64/bin/libsodium-23.dll"
+::RBNACL_LIBSODIUM_GEM_LIB_PATH = "c:/msys64/mingw64/bin/libsodium-23.dll"
 
 require 'discordrb'
 require 'dotenv'
@@ -98,14 +98,16 @@ bot.voice_state_update do |event|
   user = event.user.name
 
   if event.channel.nil?
-    p "exit #{user} from #{event.old_channel.name}"
+    p "left #{user} from #{event.old_channel.name}"
     bot.send_message(@inform_channel, "誰もおらんくなったのでサーバーを止めるマン")
     stop_proc.call(event)
   else
     p "join #{user} to #{event.channel.name}"
     bot.send_message(@inform_channel,"#{user} is joined #{event.channel.name}")
 
-    start_proc.call(event)
+    if event.channel.users.size == 1
+      start_proc.call(event)
+    end
   end
 end
 
