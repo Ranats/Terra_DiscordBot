@@ -9,6 +9,7 @@ require 'dotenv'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'google/apis/compute_v1'
+require 'pp'
 
 Dotenv.load
 
@@ -38,10 +39,12 @@ bot = Discordrb::Commands::CommandBot.new(
 bot.ready do
   bot.game = "Megaria"
   bot.servers.each_value do |srv|
-    if srv.name == "Terraria"
+    if srv.name == "test"
       @inform_channel = srv.channels.find{|s| s.type == 0}
+      @in_voice_server_people = srv.channels.find{|s| s.type == 2}.users.size
     end
   end
+  p @in_voice_server_people
 end
 
 start_proc = Proc.new do |event|
@@ -103,16 +106,19 @@ bot.voice_state_update do |event|
   user = event.user.name
 
   if event.channel.nil?
-    p "left #{user} from #{event.old_channel.name}"
-    bot.send_message(@inform_channel, "誰もおらんくなったのでサーバーを止めるマン")
-    stop_proc.call(event)
-  else
-    p "join #{user} to #{event.channel.name}"
-    bot.send_message(@inform_channel,"#{user} is joined #{event.channel.name}")
-
-    if event.channel.users.size == 1
-      start_proc.call(event)
+    if event.old_channel.users.size < 1
+      p "left #{user} from #{event.old_channel.name}"
+      bot.send_message(@inform_channel, "誰もおらんくなったのでサーバーを止めるマン")
+      @in_voice_server_people -= 1
     end
+#    stop_proc.call(event)
+  else
+    if event.channel.users.size > @in_voice_server_people
+      p "join #{user} to #{event.channel.name}"
+      bot.send_message(@inform_channel,"#{user} is joined #{event.channel.name}")
+      @in_voice_server_people += 1
+    end
+
   end
 end
 
