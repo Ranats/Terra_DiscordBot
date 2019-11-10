@@ -60,7 +60,12 @@ start_proc = Proc.new do |event|
       p res_status.status
     end
 
-    bot.send_message(@inform_channel,"Server is running.")
+    status = client.get_instance( payload[:project], payload[:zone], payload[:resourceId])
+    address = status.network_interfaces.first.access_configs.first.nat_ip
+
+    message = "Server is running at #{address}"
+
+    bot.send_message(@inform_channel,message)
 
   rescue => e
     p e
