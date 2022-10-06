@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.7.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
     declarative (0.0.10)
     declarative-option (0.1.0)
     discordrb (3.3.0)
@@ -20,6 +20,7 @@ GEM
     event_emitter (0.2.6)
     faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
+    ffi (1.11.1)
     ffi (1.11.1-x64-mingw32)
     google-api-client (0.34.0)
       addressable (~> 2.5, >= 2.5.1)
@@ -52,13 +53,18 @@ GEM
     opus-ruby (1.0.1)
       ffi
     os (1.0.1)
-    public_suffix (4.0.1)
+    public_suffix (4.0.7)
     rbnacl (3.4.0)
       ffi
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rest-client (2.1.0-x64-mingw32)
       ffi (~> 1.9)
       http-accept (>= 1.7.0, < 2.0)
@@ -82,6 +88,7 @@ GEM
 
 PLATFORMS
   x64-mingw32
+  x86_64-linux
 
 DEPENDENCIES
   discordrb
